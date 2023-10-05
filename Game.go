@@ -28,7 +28,7 @@ type enemys struct {
 	enemyYLoc int
 }
 
-func newEnemy(MaxWidth int, MAxHeight int, image *ebiten.Image) enemys {
+func newEnemy(MAxHeight int, image *ebiten.Image) enemys {
 	return enemys{
 		enemy:     image,
 		enemyXLoc: 1000,
@@ -136,7 +136,7 @@ func main() {
 
 	for i := 0; i < 10; i += 1 {
 
-		allEnemys = append(allEnemys, newEnemy(1100, 900, enemyPict))
+		allEnemys = append(allEnemys, newEnemy(900, enemyPict))
 
 	}
 
