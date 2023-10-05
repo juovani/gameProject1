@@ -136,7 +136,7 @@ func main() {
 
 	for i := 0; i < 10; i += 1 {
 
-		allEnemys = append(allEnemys, newEnemy(int(float64(rand.Intn(1100))), 900, enemyPict))
+		allEnemys = append(allEnemys, newEnemy(1100, 900, enemyPict))
 
 	}
 
