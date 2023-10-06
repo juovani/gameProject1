@@ -13,6 +13,7 @@ type topScroll struct {
 	player          *ebiten.Image
 	background      *ebiten.Image
 	bullet          *ebiten.Image
+	enemy           *ebiten.Image
 	backgroundXView int
 	xloc            int
 	yloc            int
@@ -71,9 +72,17 @@ func (demo *topScroll) Update() error {
 		demo.shot = append(demo.shot, newBullet)
 	} else {
 		for i := range demo.shot {
-			demo.shot[i].bulletXLoc += 3
+			demo.shot[i].bulletXLoc += 4
 		}
 	}
+
+	randomNumber := rand.Intn(500)
+
+	if randomNumber < 5 {
+		newEnemy := newEnemy(900, demo.enemy)
+		demo.evil = append(demo.evil, newEnemy)
+	}
+
 	for i := range demo.evil {
 		demo.evil[i].enemyXLoc -= 2
 	}
@@ -109,7 +118,7 @@ func (s topScroll) Layout(outsideWidth, outsideHeight int) (screenWidth, screenH
 	return outsideWidth, outsideHeight
 }
 func main() {
-	ebiten.SetWindowSize(1500, 800)
+	ebiten.SetWindowSize(1000, 800)
 	ebiten.SetWindowTitle("Game Project 1")
 
 	playerPict, _, err := ebitenutil.NewImageFromFile("plane.png")
@@ -128,7 +137,7 @@ func main() {
 
 	allShots := make([]shots, 0, 20)
 	allEnemys := make([]enemys, 0, 15)
-	for i := 0; i < 10; i += 1 {
+	for i := 0; i < 5; i += 1 {
 		allEnemys = append(allEnemys, newEnemy(900, enemyPict))
 	}
 	demo := topScroll{
@@ -137,6 +146,7 @@ func main() {
 		shot:   allShots,
 		evil:   allEnemys,
 		bullet: shotPict,
+		enemy:  enemyPict,
 	}
 	err = ebiten.RunGame(&demo)
 	if err != nil {
