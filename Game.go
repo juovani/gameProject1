@@ -45,27 +45,15 @@ func (demo *topScroll) Update() error {
 
 	demo.speed = 1
 	if ebiten.IsKeyPressed(ebiten.KeyW) {
-		if ebiten.IsKeyPressed(ebiten.KeyShiftLeft) {
-			demo.yloc += demo.speed - 7
-		} else {
-			demo.yloc += demo.speed - 4
-		}
+		demo.yloc += demo.speed - 4
 	}
 	if ebiten.IsKeyPressed(ebiten.KeyS) {
-		if ebiten.IsKeyPressed(ebiten.KeyShiftLeft) {
-			demo.yloc += demo.speed + 3
-		} else {
-			demo.yloc += demo.speed + 2
-		}
+		demo.yloc += demo.speed + 2
 	}
 	if ebiten.IsKeyPressed(ebiten.KeySpace) {
 		demo.temp = true
-		if ebiten.IsKeyPressed(ebiten.KeyShiftLeft) {
-			demo.bulletXLoc += 4
-		} else {
-			demo.bulletXLoc = demo.xloc + 65
-			demo.bulletYLoc = demo.yloc + 32
-		}
+		demo.bulletXLoc = demo.xloc + 65
+		demo.bulletYLoc = demo.yloc + 32
 
 	} else {
 		if demo.bulletXLoc < 1000 {
