@@ -4,28 +4,40 @@ import (
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	_ "image/png"
 	"math/rand"
 )
 
 type topScroll struct {
-	shot            *ebiten.Image
 	player          *ebiten.Image
 	background      *ebiten.Image
+	bullet          *ebiten.Image
 	backgroundXView int
 	xloc            int
 	yloc            int
 	score           int
 	speed           int
-	bulletXLoc      int
-	bulletYLoc      int
 	temp            bool
 	evil            []enemys
+	shot            []shots
+}
+
+type shots struct {
+	shot       *ebiten.Image
+	bulletXLoc int
+	bulletYLoc int
 }
 type enemys struct {
 	enemy     *ebiten.Image
 	enemyXLoc int
 	enemyYLoc int
+}
+
+func newShots(image *ebiten.Image) shots {
+	return shots{
+		shot: image,
+	}
 }
 
 func newEnemy(MAxHeight int, image *ebiten.Image) enemys {
@@ -50,24 +62,23 @@ func (demo *topScroll) Update() error {
 	if ebiten.IsKeyPressed(ebiten.KeyS) {
 		demo.yloc += demo.speed + 2
 	}
-	if ebiten.IsKeyPressed(ebiten.KeySpace) {
+	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 		demo.temp = true
-		demo.bulletXLoc = demo.xloc + 65
-		demo.bulletYLoc = demo.yloc + 32
 
+		newBullet := newShots(demo.bullet)
+		newBullet.bulletXLoc = demo.xloc + 65
+		newBullet.bulletYLoc = demo.yloc + 32
+		demo.shot = append(demo.shot, newBullet)
 	} else {
-		if demo.bulletXLoc < 1000 {
-			demo.bulletXLoc += 3
+		for i := range demo.shot {
+			demo.shot[i].bulletXLoc += 3
 		}
-
 	}
 	for i := range demo.evil {
 		demo.evil[i].enemyXLoc -= 2
 	}
-
 	return nil
 }
-
 func (demo *topScroll) Draw(screen *ebiten.Image) {
 	drawOps := ebiten.DrawImageOptions{}
 	const repeat = 3
@@ -81,24 +92,22 @@ func (demo *topScroll) Draw(screen *ebiten.Image) {
 	drawOps.GeoM.Reset()
 	drawOps.GeoM.Translate(float64(demo.xloc), float64(demo.yloc))
 	screen.DrawImage(demo.player, &drawOps)
-
-	if demo.temp == true {
-		drawOps.GeoM.Reset()
-		drawOps.GeoM.Translate(float64(demo.bulletXLoc), float64(demo.bulletYLoc))
-		screen.DrawImage(demo.shot, &drawOps)
-	}
-
 	for _, enemy := range demo.evil {
 		drawOps.GeoM.Reset()
 		drawOps.GeoM.Translate(float64(enemy.enemyXLoc), float64(enemy.enemyYLoc))
 		screen.DrawImage(enemy.enemy, &drawOps)
 	}
+	if demo.temp == true {
+		for _, shot := range demo.shot {
+			drawOps.GeoM.Reset()
+			drawOps.GeoM.Translate(float64(shot.bulletXLoc), float64(shot.bulletYLoc))
+			screen.DrawImage(shot.shot, &drawOps)
+		}
+	}
 }
-
 func (s topScroll) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
 	return outsideWidth, outsideHeight
 }
-
 func main() {
 	ebiten.SetWindowSize(1500, 800)
 	ebiten.SetWindowTitle("Game Project 1")
@@ -112,27 +121,22 @@ func main() {
 		fmt.Print("Can't load background:", err)
 	}
 	shotPict, _, err := ebitenutil.NewImageFromFile("M1.png")
-	if err != nil {
-		fmt.Print("Can't load shot:", err)
-	}
 	enemyPict, _, err := ebitenutil.NewImageFromFile("enemy.png")
 	if err != nil {
 		fmt.Print("Can't load enemy:", err)
 	}
 
+	allShots := make([]shots, 0, 20)
 	allEnemys := make([]enemys, 0, 15)
-
 	for i := 0; i < 10; i += 1 {
-
 		allEnemys = append(allEnemys, newEnemy(900, enemyPict))
-
 	}
-
 	demo := topScroll{
 		background: backgroundPict, player: playerPict,
 		xloc: 1, yloc: 350,
-		shot: shotPict,
-		evil: allEnemys,
+		shot:   allShots,
+		evil:   allEnemys,
+		bullet: shotPict,
 	}
 	err = ebiten.RunGame(&demo)
 	if err != nil {
