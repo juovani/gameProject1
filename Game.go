@@ -137,9 +137,6 @@ func main() {
 
 	allShots := make([]shots, 0, 20)
 	allEnemys := make([]enemys, 0, 15)
-	for i := 0; i < 5; i += 1 {
-		allEnemys = append(allEnemys, newEnemy(900, enemyPict))
-	}
 	demo := topScroll{
 		background: backgroundPict, player: playerPict,
 		xloc: 1, yloc: 350,
