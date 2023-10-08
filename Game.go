@@ -53,7 +53,7 @@ func newEnemy(MAxHeight int, image *ebiten.Image) enemys {
 func (demo *topScroll) Update() error {
 	backgroundWidth := demo.background.Bounds().Dx()
 	maxX := backgroundWidth * 2
-	demo.backgroundXView -= 4
+	demo.backgroundXView -= 3
 	demo.backgroundXView %= maxX
 
 	demo.speed = 1
@@ -75,17 +75,32 @@ func (demo *topScroll) Update() error {
 			demo.shot[i].bulletXLoc += 4
 		}
 	}
-
 	randomNumber := rand.Intn(500)
-
 	if randomNumber < 5 {
 		newEnemy := newEnemy(900, demo.enemy)
 		demo.evil = append(demo.evil, newEnemy)
 	}
-
 	for i := range demo.evil {
-		demo.evil[i].enemyXLoc -= 2
+		demo.evil[i].enemyXLoc -= 3
 	}
+
+	for i := 0; i < len(demo.shot); i++ {
+		for j := 0; j < len(demo.evil); j++ {
+			bullet := &demo.shot[i]
+			enemy := &demo.evil[j]
+			if bullet.bulletXLoc < enemy.enemyXLoc+enemy.enemy.Bounds().Dx() &&
+				bullet.bulletXLoc+bullet.shot.Bounds().Dx() > enemy.enemyXLoc &&
+				bullet.bulletYLoc < enemy.enemyYLoc+enemy.enemy.Bounds().Dy() &&
+				bullet.bulletYLoc+bullet.shot.Bounds().Dy() > enemy.enemyYLoc {
+				demo.shot = append(demo.shot[:i], demo.shot[i+1:]...)
+				demo.evil = append(demo.evil[:j], demo.evil[j+1:]...)
+				demo.score++
+				i--
+				j--
+			}
+		}
+	}
+
 	return nil
 }
 func (demo *topScroll) Draw(screen *ebiten.Image) {
@@ -113,6 +128,7 @@ func (demo *topScroll) Draw(screen *ebiten.Image) {
 			screen.DrawImage(shot.shot, &drawOps)
 		}
 	}
+
 }
 func (s topScroll) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
 	return outsideWidth, outsideHeight
