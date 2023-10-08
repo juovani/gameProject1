@@ -5,6 +5,10 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/hajimehoshi/ebiten/v2/text"
+	"golang.org/x/image/colornames"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/basicfont"
 	_ "image/png"
 	"math/rand"
 )
@@ -84,6 +88,14 @@ func (demo *topScroll) Update() error {
 		demo.evil[i].enemyXLoc -= 3
 	}
 
+	for i := 0; i < len(demo.evil); i++ {
+		if demo.evil[i].enemyXLoc < demo.xloc {
+			demo.evil = append(demo.evil[:i], demo.evil[i+1:]...)
+			demo.score--
+			i--
+		}
+	}
+
 	for i := 0; i < len(demo.shot); i++ {
 		for j := 0; j < len(demo.evil); j++ {
 			bullet := &demo.shot[i]
@@ -128,8 +140,15 @@ func (demo *topScroll) Draw(screen *ebiten.Image) {
 			screen.DrawImage(shot.shot, &drawOps)
 		}
 	}
-
+	DrawCenteredText(screen, basicfont.Face7x13, fmt.Sprintf("Score: %d", demo.score), 30, 20)
 }
+
+func DrawCenteredText(screen *ebiten.Image, font font.Face, s string, cx, cy int) { //from https://github.com/sedyh/ebitengine-cheatsheet
+	bounds := text.BoundString(font, s)
+	x, y := cx-bounds.Min.X-bounds.Dx()/2, cy-bounds.Min.Y-bounds.Dy()/2
+	text.Draw(screen, s, font, x, y, colornames.White)
+}
+
 func (s topScroll) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
 	return outsideWidth, outsideHeight
 }
