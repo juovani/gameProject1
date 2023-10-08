@@ -143,7 +143,8 @@ func (demo *topScroll) Draw(screen *ebiten.Image) {
 	DrawCenteredText(screen, basicfont.Face7x13, fmt.Sprintf("Score: %d", demo.score), 30, 20)
 }
 
-func DrawCenteredText(screen *ebiten.Image, font font.Face, s string, cx, cy int) { //from https://github.com/sedyh/ebitengine-cheatsheet
+func DrawCenteredText(screen *ebiten.Image, font font.Face, s string, cx, cy int) {
+	//from https://github.com/sedyh/ebitengine-cheatsheet
 	bounds := text.BoundString(font, s)
 	x, y := cx-bounds.Min.X-bounds.Dx()/2, cy-bounds.Min.Y-bounds.Dy()/2
 	text.Draw(screen, s, font, x, y, colornames.White)
