@@ -27,7 +27,6 @@ type topScroll struct {
 	evil            []enemys
 	shot            []shots
 }
-
 type shots struct {
 	shot       *ebiten.Image
 	bulletXLoc int
@@ -44,16 +43,13 @@ func newShots(image *ebiten.Image) shots {
 		shot: image,
 	}
 }
-
 func newEnemy(MAxHeight int, image *ebiten.Image) enemys {
 	return enemys{
 		enemy:     image,
 		enemyXLoc: 1000,
 		enemyYLoc: rand.Intn(MAxHeight),
 	}
-
 }
-
 func (demo *topScroll) Update() error {
 	backgroundWidth := demo.background.Bounds().Dx()
 	maxX := backgroundWidth * 2
@@ -87,7 +83,6 @@ func (demo *topScroll) Update() error {
 	for i := range demo.evil {
 		demo.evil[i].enemyXLoc -= 3
 	}
-
 	for i := 0; i < len(demo.evil); i++ {
 		if demo.evil[i].enemyXLoc < demo.xloc {
 			demo.evil = append(demo.evil[:i], demo.evil[i+1:]...)
@@ -95,7 +90,6 @@ func (demo *topScroll) Update() error {
 			i--
 		}
 	}
-
 	for i := 0; i < len(demo.shot); i++ {
 		for j := 0; j < len(demo.evil); j++ {
 			bullet := &demo.shot[i]
@@ -112,7 +106,6 @@ func (demo *topScroll) Update() error {
 			}
 		}
 	}
-
 	return nil
 }
 func (demo *topScroll) Draw(screen *ebiten.Image) {
@@ -142,14 +135,12 @@ func (demo *topScroll) Draw(screen *ebiten.Image) {
 	}
 	DrawCenteredText(screen, basicfont.Face7x13, fmt.Sprintf("Score: %d", demo.score), 30, 20)
 }
-
 func DrawCenteredText(screen *ebiten.Image, font font.Face, s string, cx, cy int) {
 	//from https://github.com/sedyh/ebitengine-cheatsheet
 	bounds := text.BoundString(font, s)
 	x, y := cx-bounds.Min.X-bounds.Dx()/2, cy-bounds.Min.Y-bounds.Dy()/2
 	text.Draw(screen, s, font, x, y, colornames.White)
 }
-
 func (s topScroll) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
 	return outsideWidth, outsideHeight
 }
@@ -170,7 +161,6 @@ func main() {
 	if err != nil {
 		fmt.Print("Can't load enemy:", err)
 	}
-
 	allShots := make([]shots, 0, 20)
 	allEnemys := make([]enemys, 0, 15)
 	demo := topScroll{
