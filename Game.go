@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/audio"
+	"github.com/hajimehoshi/ebiten/v2/audio/wav"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"github.com/hajimehoshi/ebiten/v2/text"
@@ -11,6 +13,7 @@ import (
 	"golang.org/x/image/font/basicfont"
 	_ "image/png"
 	"math/rand"
+	"os"
 )
 
 type topScroll struct {
@@ -26,6 +29,8 @@ type topScroll struct {
 	temp            bool
 	evil            []enemys
 	shot            []shots
+	audioContext    *audio.Context
+	soundPlayer     *audio.Player
 }
 type shots struct {
 	shot       *ebiten.Image
@@ -37,6 +42,10 @@ type enemys struct {
 	enemyXLoc int
 	enemyYLoc int
 }
+
+const (
+	SOUND_SAMPLE_RATE = 48000
+)
 
 func newShots(image *ebiten.Image) shots {
 	return shots{
@@ -90,7 +99,6 @@ func (demo *topScroll) Update() error {
 			i--
 		}
 	}
-
 	for i := 0; i < len(demo.shot); i++ {
 		for j := 0; j < len(demo.evil); j++ {
 			bullet := &demo.shot[i]
@@ -99,6 +107,8 @@ func (demo *topScroll) Update() error {
 				bullet.bulletXLoc+bullet.shot.Bounds().Dx() > enemy.enemyXLoc &&
 				bullet.bulletYLoc < enemy.enemyYLoc+enemy.enemy.Bounds().Dy() &&
 				bullet.bulletYLoc+bullet.shot.Bounds().Dy() > enemy.enemyYLoc {
+				demo.soundPlayer.Rewind()
+				demo.soundPlayer.Play()
 				demo.shot = append(demo.shot[:i], demo.shot[i+1:]...)
 				demo.evil = append(demo.evil[:j], demo.evil[j+1:]...)
 				demo.score++
@@ -162,18 +172,37 @@ func main() {
 	if err != nil {
 		fmt.Print("Can't load enemy:", err)
 	}
+	soundContext := audio.NewContext(SOUND_SAMPLE_RATE)
 	allShots := make([]shots, 0, 20)
 	allEnemys := make([]enemys, 0, 15)
 	demo := topScroll{
 		background: backgroundPict, player: playerPict,
 		xloc: 1, yloc: 350,
-		shot:   allShots,
-		evil:   allEnemys,
-		bullet: shotPict,
-		enemy:  enemyPict,
+		shot:         allShots,
+		evil:         allEnemys,
+		bullet:       shotPict,
+		enemy:        enemyPict,
+		audioContext: soundContext,
+		soundPlayer:  LoadWav("thunder.wav", soundContext),
 	}
 	err = ebiten.RunGame(&demo)
 	if err != nil {
 		fmt.Print("Failed to run game:", err)
 	}
+}
+
+func LoadWav(name string, context *audio.Context) *audio.Player {
+	thunderFile, err := os.Open(name)
+	if err != nil {
+		fmt.Println("Error Loading sound: ", err)
+	}
+	thunderSound, err := wav.DecodeWithoutResampling(thunderFile)
+	if err != nil {
+		fmt.Println("Error interpreting sound file: ", err)
+	}
+	soundPlayer, err := context.NewPlayer(thunderSound)
+	if err != nil {
+		fmt.Println("Couldn't create sound player: ", err)
+	}
+	return soundPlayer
 }
