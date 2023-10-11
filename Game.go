@@ -90,6 +90,7 @@ func (demo *topScroll) Update() error {
 			i--
 		}
 	}
+
 	for i := 0; i < len(demo.shot); i++ {
 		for j := 0; j < len(demo.evil); j++ {
 			bullet := &demo.shot[i]
